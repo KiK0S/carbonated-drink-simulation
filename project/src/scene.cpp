@@ -65,6 +65,7 @@ void scene_structure::display_frame()
 			vec3 const& p = particles[k].p;
 			sphere_particle.model.translation = p;
 			draw(sphere_particle, environment);
+			// Citron.
 		}
 	}
 
