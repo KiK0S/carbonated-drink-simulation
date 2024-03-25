@@ -14,6 +14,9 @@ struct gui_parameters {
 	bool display_particles = false;
 	bool display_radius = false;
 	float nu = 0.05;
+	int bubble_count_per_particle = 3;
+	float bubble_pop_coef = 1.0f;
+	bool more_foam = false;
 };
 
 // The structure of the custom scene

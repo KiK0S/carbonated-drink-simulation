@@ -1,5 +1,6 @@
 #include "scene.hpp"
 #include <numeric>
+#include <algorithm>
 
 
 using namespace cgp;
@@ -48,7 +49,8 @@ void scene_structure::initialize_sph()
 
 	// Fill a square with particles
 	particles.clear();
-	for (float x = h; x < 1.0f - h; x = x + c * h)
+	bubbles.clear();
+	for (float x = -0.5 + h; x < 0.5f - h; x = x + c * h)
 	{
 		for (float y = -1.0f + h; y < 1.0f - h; y = y + c * h)
 		{
@@ -62,7 +64,7 @@ void scene_structure::initialize_sph()
 
 void scene_structure::display_voronoi()
 {
-	std::cout << "Start Voronoi" << std::endl;
+	// std::cout << "Start Voronoi" << std::endl;
 
 	// if (bubbles.size() >= 3) {
 	// 	bubble_element new_bubble;
@@ -316,7 +318,7 @@ void scene_structure::display_voronoi()
 			std::cout << "\t finished " << i << std::endl;		
 	}
 
-	std::cout << "Finished Voronoi" << std::endl;
+	// std::cout << "Finished Voronoi" << std::endl;
 
 
 	// for (int k = 0; k < bubbles.size(); k++) {
@@ -335,7 +337,7 @@ void scene_structure::display_frame()
 	timer.update(); // update the timer to the current elapsed time
 	float const dt = 0.005f * timer.scale;
 	sph_parameters.nu = gui.nu;
-	simulate(dt, particles, bubbles, sph_parameters);
+	simulate(dt, particles, bubbles, sph_parameters, gui.bubble_pop_coef, gui.more_foam);
 
 
 	if (gui.display_particles) {
@@ -378,42 +380,79 @@ void scene_structure::display_gui()
 	ImGui::Checkbox("Particles", &gui.display_particles);
 	ImGui::Checkbox("Radius", &gui.display_radius);
 	ImGui::SliderFloat("Viscosity", &gui.nu, 0.0f, 0.5f, "%0.2f");
+	ImGui::SliderInt("Spawning bubbles", &gui.bubble_count_per_particle, 1, 5);
+	ImGui::SliderFloat("Pop coefficient", &gui.bubble_pop_coef, 0.7f, 4.0f, "%0.2f");
+	ImGui::Checkbox("More foam", &gui.more_foam);
 }
 
 void scene_structure::update_field_color(grid_2D<vec3>& field, numarray<particle_element> const& particles, numarray<bubble_element> const& bubbles)
 {
-	field.fill(environment.background_color);
+	field.fill(vec3(0.0, 0.0, 0.0));
+	grid_2D<float> f_intensity(field.dimension.x, field.dimension.y);
+	f_intensity.fill(0.0);
 	int const Nf = int(field.dimension.x);
+	for (int k = 0; k < particles.size(); k++) {
+		vec3 const& pi = particles[k].p;
+		int ci = (pi.x / 2.0f + 0.5f)  * (Nf - 1.0f);
+		int cj = (pi.y / 2.0f + 0.5f)  * (Nf - 1.0f);
+
+		int bb = 10;
+		for (size_t kx = (size_t)std::max(0, -bb + ci); kx <= (size_t) std::min(Nf - 1, ci + bb); kx++) {
+			for (size_t ky = (size_t)std::max(0, -bb + cj); ky <= (size_t) std::min(Nf - 1, cj + bb); ky++) {
+				vec3 const p0 = { 2.0f * (kx / (Nf - 1.0f) - 0.5f), 2.0f * (ky / (Nf - 1.0f) - 0.5f), 0.0f };
+				float const r = norm(pi - p0) / particles[k].d;
+				f_intensity(kx, Nf - 1 - ky) += 0.25f * std::exp(-r * r);
+			}
+		}
+	}
+
+	
+	for (int k = 0; k < bubbles.size(); k++) {
+		vec3 const& pi = bubbles[k].p;
+		
+		int ci = (pi.x / 2.0f + 0.5f)  * (Nf - 1.0f);
+		int cj = (pi.y / 2.0f + 0.5f)  * (Nf - 1.0f);
+
+		int bb = 10;
+		for (size_t kx = (size_t)std::max(0, -bb + ci); kx <= (size_t) std::min(Nf - 1, ci + bb); kx++) {
+			for (size_t ky = (size_t)std::max(0, -bb + cj); ky <= (size_t) std::min(Nf - 1, cj + bb); ky++) {
+				vec3 const p0 = { 2.0f * (kx / (Nf - 1.0f) - 0.5f), 2.0f * (ky / (Nf - 1.0f) - 0.5f), 0.0f };
+				float const r = norm(pi - p0) / (bubbles[k].r / 1.5);
+				f_intensity(kx, Nf - 1 - ky) -= 2 * std::exp(-r * r);
+			}
+		}
+
+	}
+
+	
 	for (int kx = 0; kx < Nf; ++kx) {
 		for (int ky = 0; ky < Nf; ++ky) {
-
-			float f = 0.0f;
-			vec3 const p0 = { 2.0f * (kx / (Nf - 1.0f) - 0.5f), 2.0f * (ky / (Nf - 1.0f) - 0.5f), 0.0f };
-			for (size_t k = 0; k < particles.size(); ++k) {
-				vec3 const& pi = particles[k].p;
-				float const r = norm(pi - p0) / particles[k].d;
-				f += 0.25f * std::exp(-r * r);
-			}
-
-			bool in_bubble = false;
-			for (size_t k = 0; k < bubbles.size(); ++k) {
-				vec3 const& pi = bubbles[k].p;
-				float const r = norm(pi - p0) / (bubbles[k].r / 1.5);
-				f -= 2 * std::exp(-r * r);
-
-				if (norm(p0 - pi) < bubbles[k].r * 0.7)
-					in_bubble = true;
-			}
-
-			if (in_bubble)
-				field(kx, Nf - 1 - ky) =  vec3(1, 1, 1);
-			else {
-				if (f < 0)
+			float f = f_intensity(kx, Nf - 1 - ky);
+			if (f < 0)
 					field(kx, Nf - 1 - ky) = environment.background_color - clamp(f, -1., 0.) * (vec3(1., 1., 1.) - environment.background_color);
 				else
 					field(kx, Nf - 1 - ky) = environment.background_color - clamp(f, 0., 1.) * vec3(0.05, 0.31, 0.91);
+		}
+	}
+
+
+
+	for (int k = 0; k < bubbles.size(); k++) {
+		vec3 const& pi = bubbles[k].p;
+		
+		int ci = (pi.x / 2.0f + 0.5f)  * (Nf - 1.0f);
+		int cj = (pi.y / 2.0f + 0.5f)  * (Nf - 1.0f);
+
+		int bb = 10;
+		for (size_t kx = (size_t)std::max(0, -bb + ci); kx <= (size_t) std::min(Nf - 1, ci + bb); kx++) {
+			for (size_t ky = (size_t)std::max(0, -bb + cj); ky <= (size_t) std::min(Nf - 1, cj + bb); ky++) {
+				vec3 const p0 = { 2.0f * (kx / (Nf - 1.0f) - 0.5f), 2.0f * (ky / (Nf - 1.0f) - 0.5f), 0.0f };
+				float const r = norm(pi - p0) / (bubbles[k].r / 1.5);
+				if (norm(p0 - pi) < bubbles[k].r * 0.7)
+					field(kx, Nf - 1 - ky) =  vec3(1, 1, 1);
 			}
 		}
+
 	}
 }
 

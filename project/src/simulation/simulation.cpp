@@ -162,7 +162,7 @@ void reflect_bubbles_2(numarray<bubble_element>& bubbles) {
     }
 }
 
-void pop_bubbles(numarray<particle_element>& particles, numarray<bubble_element>& bubbles, float dt) {
+void pop_bubbles(numarray<particle_element>& particles, numarray<bubble_element>& bubbles, float dt, float pop_coef, bool more_foam) {
     std::set<int, std::greater<int>> bubbles_to_pop;
     for (int i = 0; i < bubbles.size(); i++) {
         int cnt_attached = 0;
@@ -175,16 +175,18 @@ void pop_bubbles(numarray<particle_element>& particles, numarray<bubble_element>
 
 
         int cnt_hit = 0;
-        for (int j = 0; j < bubbles.size(); j++) {
-            if (i == j) continue;
+        if (more_foam) {
+            for (int j = 0; j < bubbles.size(); j++) {
+                if (i == j) continue;
 
-            double dist = cgp::norm(bubbles[i].p - bubbles[j].p);
-            if (dist < bubbles[i].d + bubbles[j].d) {
-                cnt_hit++;
+                double dist = cgp::norm(bubbles[i].p - bubbles[j].p);
+                if (dist < bubbles[i].d + bubbles[j].d) {
+                    cnt_hit++;
+                }
             }
         }
         if (cnt_hit <= 2) {
-            float prob_pop = std::min(0.5f, (bubbles[i].p.y + 1) / 4);
+            float prob_pop = std::min(0.5f, pop_coef * (bubbles[i].p.y + 1) / 4);
             prob_pop *= (dt * 6);
             if (rand_uniform() < prob_pop) {
                 bubbles_to_pop.insert(i);
@@ -203,9 +205,9 @@ void pop_bubbles(numarray<particle_element>& particles, numarray<bubble_element>
 // TODO: set<int> active_bubbles.
 // TODO: high speed particle pops a bubble.
 
-void simulate(float dt, numarray<particle_element>& particles, numarray<bubble_element>& bubbles, sph_parameters_structure const& sph_parameters)
+void simulate(float dt, numarray<particle_element>& particles, numarray<bubble_element>& bubbles, sph_parameters_structure const& sph_parameters, float pop_coef, bool more_foam)
 {
-    std::cout << "dt = " << dt << std::endl;
+    // std::cout << "dt = " << dt << std::endl;
     // auto a = cgp::vec3({1, 0, 2});
     // auto b = cgp::rotation_axis_angle(a, 3.1415926);
     // cgp::rotation_transform()
@@ -219,7 +221,7 @@ void simulate(float dt, numarray<particle_element>& particles, numarray<bubble_e
     force_bubbles_to_liquid(particles, bubbles);
     reflect_bubbles(bubbles);
     reflect_bubbles_2(bubbles);
-    pop_bubbles(particles, bubbles, dt);
+    pop_bubbles(particles, bubbles, dt, pop_coef, more_foam);
 
 	// Numerical integration
 	float const damping = 0.005f;

@@ -54,4 +54,4 @@ struct sph_parameters_structure
 };
 
 
-void simulate(float dt, cgp::numarray<particle_element>& particles, cgp::numarray<bubble_element>& bubbles, sph_parameters_structure const& sph_parameters);
+void simulate(float dt, cgp::numarray<particle_element>& particles, cgp::numarray<bubble_element>& bubbles, sph_parameters_structure const& sph_parameters, float pop_coef, bool more_foam);
