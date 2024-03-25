@@ -5,9 +5,11 @@ INF-585 project
 
 ---
 
-Beer render (speeded to fit in 10 MB)
+Beer and Cola renders (speeded to fit in 10 MB)
 
-https://github.com/KiK0S/carbonated-drink-simulation/assets/64462090/15c4fa25-c713-436e-9da0-92dd5aff2ee7
+
+https://github.com/KiK0S/carbonated-drink-simulation/assets/64462090/10576cd5-f110-49da-8a98-d98939dc2279
+
 
 ---
 
