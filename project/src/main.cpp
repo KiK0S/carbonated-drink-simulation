@@ -180,8 +180,13 @@ window_structure standard_window_initialization(int width_target, int height_tar
 	// Create the window using GLFW
 	// ***************************************************** //
 	window_structure window;
-	window.initialize_glfw();
-	window.create_window(width_target, height_target, "CGP Display", CGP_OPENGL_VERSION_MAJOR, CGP_OPENGL_VERSION_MINOR);
+	// window.initialize_glfw();
+	// window.create_window(width_target, height_target, "CGP Display", CGP_OPENGL_VERSION_MAJOR, CGP_OPENGL_VERSION_MINOR);
+
+
+	window.initialize(width_target, height_target, "CGP Display", CGP_OPENGL_VERSION_MAJOR, CGP_OPENGL_VERSION_MINOR);
+	// window.initialize();
+	// window.glfw_create_window(width_target, height_target, "CGP Display", CGP_OPENGL_VERSION_MAJOR, CGP_OPENGL_VERSION_MINOR);
 
 	// Display information
 	// ***************************************************** //
