@@ -8,7 +8,7 @@ bool project::vsync=true;
 
 environment_structure::environment_structure()
 {
-	background_color = { 1,1,1 };
+	background_color = { 0.9,0.9,0.9 };
 	light = { 1,1,1 };
 }
 

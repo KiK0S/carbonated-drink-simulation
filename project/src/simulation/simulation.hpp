@@ -17,7 +17,7 @@ struct particle_element
     float d;
 
 
-    particle_element() : p{0,0,0},v{0,0,0},f{0,0,0},rho(0),pressure(0), bubble_count(3), d(0.1) {}
+    particle_element() : p{0,0,0}, v{0,0,0}, f{0,0,0}, rho(0), pressure(0), bubble_count(2), d(0.1) {}
 };
 
 // SPH Particle
@@ -26,6 +26,9 @@ struct bubble_element
     cgp::vec3 p; // Position
     cgp::vec3 v; // Speed
     cgp::vec3 f; // Force
+
+    float r = 0.03; // Display radius.
+    float d = 0.04; // Private space radius.
 
     bubble_element() : p{0,0,0},v{0,0,0},f{0,0,0} {}
 };
