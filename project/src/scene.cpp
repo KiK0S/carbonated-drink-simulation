@@ -180,7 +180,7 @@ void scene_structure::display_voronoi()
 					ahp_par_perp = normalize(perp) * dot(normalize(perp), ahp);
 					path_ac_p = ahp * (norm(path_ac_c_par_perp) / norm(ahp_par_perp));
 					if (dot(path_ac_c_par_perp, ahp_par_perp) < 0) {
-						std::cout << "DOOOOOOOOUBLE SHIIIT IT CAN'T CAN'T CAN'T CAN'T CAN'T BE THIS" << std::endl;
+						std::cout << "The logic is broken" << std::endl;
 						normalize(vec3({0, 0, 0}));
 					}
 				}
