@@ -16,7 +16,7 @@ void scene_structure::initialize()
 	camera_control.look_at({ 0.0f, 0.0f, 2.0f }, {0,0,0}, {0,1,0});
 	global_frame.initialize_data_on_gpu(mesh_primitive_frame());
 
-	field.resize(300, 300);
+	field.resize(200, 200);
 	field_quad.initialize_data_on_gpu(mesh_primitive_quadrangle({ -1,-1,0 }, { 1,-1,0 }, { 1,1,0 }, { -1,1,0 }) );
 	field_quad.material.phong = { 1,0,0 };
 	field_quad.texture.initialize_texture_2d_on_gpu(field);
@@ -443,7 +443,7 @@ void scene_structure::update_field_color(grid_2D<vec3>& field, numarray<particle
 		int ci = (pi.x / 2.0f + 0.5f)  * (Nf - 1.0f);
 		int cj = (pi.y / 2.0f + 0.5f)  * (Nf - 1.0f);
 
-		int bb = 20;
+		int bb = 15;
 		for (size_t kx = (size_t)std::max(0, -bb + ci); kx <= (size_t) std::min(Nf - 1, ci + bb); kx++) {
 			for (size_t ky = (size_t)std::max(0, -bb + cj); ky <= (size_t) std::min(Nf - 1, cj + bb); ky++) {
 				vec3 const p0 = { 2.0f * (kx / (Nf - 1.0f) - 0.5f), 2.0f * (ky / (Nf - 1.0f) - 0.5f), 0.0f };

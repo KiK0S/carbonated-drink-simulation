@@ -16,7 +16,7 @@ struct gui_parameters {
 	float nu = 0.05;
 	int bubble_count_per_particle = 3;
 	float bubble_pop_coef = 1.0f;
-	bool more_foam = false;
+	bool more_foam = true;
 };
 
 // The structure of the custom scene
