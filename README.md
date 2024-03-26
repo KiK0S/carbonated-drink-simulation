@@ -11,7 +11,8 @@ https://github.com/KiK0S/carbonated-drink-simulation/assets/64462090/10576cd5-f1
 
 Beer and Cola through the glass
 
-https://github.com/KiK0S/carbonated-drink-simulation/assets/64462090/635a1044-1dba-43b5-9328-8b919bb96479
+https://github.com/KiK0S/carbonated-drink-simulation/assets/64462090/20147c12-df7f-4248-946b-49bf060e4811
+
 
 ---
 
